@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/services")
@@ -27,6 +28,21 @@ public class ServiceController {
     @PostMapping
     public Services createService(@RequestBody @Valid CreateService createService){
         return serviceService.createService(createService);
+    }
+
+    @GetMapping("/{uuid}")
+    public Services getService(@PathVariable UUID uuid){
+        return serviceService.getService(uuid);
+    }
+
+    @PutMapping("{uuid}")
+    public Services updateService(@PathVariable UUID uuid, @RequestBody @Valid CreateService createService){
+        return serviceService.updateService(uuid, createService);
+    }
+
+    @DeleteMapping("{uuid}")
+    public Services deleteService(@PathVariable UUID uuid){
+        return serviceService.deleteService(uuid);
     }
 }
 

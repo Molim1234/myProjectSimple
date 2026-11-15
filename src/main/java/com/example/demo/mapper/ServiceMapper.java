@@ -16,6 +16,13 @@ public class ServiceMapper {
         return s;
     }
 
+    public void updateServices(Services service, CreateService createService) {
+        service.setName(createService.getName());
+        service.setDescription(createService.getDescription());
+        service.setBaseUrl(createService.getBaseUrl());
+        service.setActive(createService.isActive());
+    }
+
 
 
 }

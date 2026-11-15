@@ -12,7 +12,6 @@ public class CreateService {
 
     private String baseUrl;
 
-    @NotNull
     private boolean active;
 
     public CreateService(String name, String description, String baseUrl, boolean active) {
@@ -20,6 +19,9 @@ public class CreateService {
         this.description = description;
         this.baseUrl = baseUrl;
         this.active = active;
+    }
+
+    public CreateService() {
     }
 
     public String getName() {
