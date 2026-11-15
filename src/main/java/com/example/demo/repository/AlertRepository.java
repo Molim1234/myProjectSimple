@@ -1,4 +1,9 @@
 package com.example.demo.repository;
 
-public interface AlertRepository {
+import com.example.demo.entity.Alert;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.UUID;
+
+public interface AlertRepository extends JpaRepository<Alert, UUID> {
 }

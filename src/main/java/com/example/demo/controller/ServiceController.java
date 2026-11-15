@@ -35,12 +35,12 @@ public class ServiceController {
         return serviceService.getService(uuid);
     }
 
-    @PutMapping("{uuid}")
+    @PutMapping("/{uuid}")
     public Services updateService(@PathVariable UUID uuid, @RequestBody @Valid CreateService createService){
         return serviceService.updateService(uuid, createService);
     }
 
-    @DeleteMapping("{uuid}")
+    @DeleteMapping("/{uuid}")
     public Services deleteService(@PathVariable UUID uuid){
         return serviceService.deleteService(uuid);
     }
