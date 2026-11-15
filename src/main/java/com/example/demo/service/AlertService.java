@@ -7,6 +7,7 @@ import com.example.demo.mapper.AlertMapper;
 import com.example.demo.repository.AlertRepository;
 import com.example.demo.repository.IncidentRepository;
 import com.example.demo.repository.ServiceRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -26,6 +27,7 @@ public class AlertService {
         this.incidentRepository = incidentRepository;
     }
 
+    @Transactional
     public Alert addAlert(CreateAlert createAlert) {
         var alert = alertMapper.toAlert(createAlert);
         var service = serviceRepository.findById(createAlert.getServiceId()).orElseThrow(()->new NoSuchElementException("Service not found"));

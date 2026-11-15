@@ -49,11 +49,6 @@ public class Incident {
         }
     }
 
-    public void removeAlert(Alert alert) {
-        if (alerts.remove(alert)) {
-            alert.setIncident(null);
-        }
-    }
 
     public Incident() {
     }
