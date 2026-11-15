@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.AlertResponse;
 import com.example.demo.dto.CreateAlert;
 import com.example.demo.entity.Alert;
 import com.example.demo.service.AlertService;
@@ -21,7 +22,7 @@ public class AlertController {
     }
 
     @PostMapping
-    public Alert addAlert(@RequestBody @Valid CreateAlert createAlert){
+    public AlertResponse addAlert(@RequestBody @Valid CreateAlert createAlert){
         return alertService.addAlert(createAlert);
     }
 

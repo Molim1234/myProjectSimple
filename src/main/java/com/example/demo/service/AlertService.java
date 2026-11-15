@@ -1,7 +1,7 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.AlertResponse;
 import com.example.demo.dto.CreateAlert;
-import com.example.demo.entity.Alert;
 import com.example.demo.entity.Incident;
 import com.example.demo.mapper.AlertMapper;
 import com.example.demo.repository.AlertRepository;
@@ -27,25 +27,41 @@ public class AlertService {
         this.incidentRepository = incidentRepository;
     }
 
+
     @Transactional
-    public Alert addAlert(CreateAlert createAlert) {
+    public AlertResponse addAlert(CreateAlert createAlert) {
+
         var alert = alertMapper.toAlert(createAlert);
-        var service = serviceRepository.findById(createAlert.getServiceId()).orElseThrow(()->new NoSuchElementException("Service not found"));
+
+        var service = serviceRepository.findById(createAlert.getServiceId())
+                .orElseThrow(() -> new NoSuchElementException("Service not found"));
+
         alert.setService(service);
 
-        var optionalIncident = incidentRepository.findIncidentByServiceAndError(createAlert.getServiceId(), createAlert.getErrorCode());
-Incident incident;
-        if(optionalIncident.isEmpty()){
+        var optionalIncident = incidentRepository.findIncidentByServiceAndError(
+                createAlert.getServiceId(),
+                createAlert.getErrorCode()
+        );
+
+        Incident incident;
+
+        if (optionalIncident.isEmpty()) {
             incident = new Incident();
             incident.setErrorCode(alert.getErrorCode());
             incident.setService(service);
             incident.setDescription(alert.getMessage());
             incident.addAlert(alert);
-        }else{
+
+            incidentRepository.save(incident);
+
+        } else {
             incident = optionalIncident.get();
             incident.addAlert(alert);
         }
-        incidentRepository.save(incident);
-        return alertRepository.save(alert);
+
+        var savedAlert = alertRepository.save(alert);
+
+        return alertMapper.toAlertResponse(savedAlert);
     }
+
 }
