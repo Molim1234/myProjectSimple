@@ -2,7 +2,6 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.AlertResponse;
 import com.example.demo.dto.CreateAlert;
-import com.example.demo.entity.Alert;
 import com.example.demo.service.AlertService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class AlertController {
 
     private final AlertService alertService;
-
 
     public AlertController(AlertService alertService) {
         this.alertService = alertService;

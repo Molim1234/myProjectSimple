@@ -38,6 +38,10 @@ public class Incident {
     @OneToMany(mappedBy = "incident")
     private List<Alert> alerts = new ArrayList<>();
 
+    @OneToMany(mappedBy = "incident")
+    private List<IncidentEvent> events = new ArrayList<>();
+
+
     public void addAlert(Alert alert) {
         if (alert == null) {
             return;
@@ -49,6 +53,17 @@ public class Incident {
         }
     }
 
+    public void addEvent(IncidentEvent event) {
+        if (event == null) {
+            return;
+        }
+
+        if (!events.contains(event)) {
+            events.add(event);
+        }
+
+        event.setIncident(this);
+    }
 
     public Incident() {
     }

@@ -32,7 +32,7 @@ public class IncidentController {
         return incidentService.setAcknowledge(uuid);
     }
 
-    @PatchMapping("/{uuid}/resolved")
+    @PatchMapping("/{uuid}/resolve")
     public IncidentResponse setResolved(@PathVariable UUID uuid){
         return incidentService.setResolved(uuid);
     }

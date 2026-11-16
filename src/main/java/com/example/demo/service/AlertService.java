@@ -3,8 +3,11 @@ package com.example.demo.service;
 import com.example.demo.dto.AlertResponse;
 import com.example.demo.dto.CreateAlert;
 import com.example.demo.entity.Incident;
+import com.example.demo.entity.IncidentEvent;
+import com.example.demo.entity.IncidentEventType;
 import com.example.demo.mapper.AlertMapper;
 import com.example.demo.repository.AlertRepository;
+import com.example.demo.repository.IncidentEventRepository;
 import com.example.demo.repository.IncidentRepository;
 import com.example.demo.repository.ServiceRepository;
 import jakarta.transaction.Transactional;
@@ -19,12 +22,14 @@ public class AlertService {
     private final AlertMapper alertMapper;
     private final ServiceRepository serviceRepository;
     private final IncidentRepository incidentRepository;
+    private final IncidentEventRepository incidentEventRepository;
 
-    public AlertService(AlertRepository alertRepository, AlertMapper alertMapper, ServiceRepository serviceRepository, IncidentRepository incidentRepository) {
+    public AlertService(AlertRepository alertRepository, AlertMapper alertMapper, ServiceRepository serviceRepository, IncidentRepository incidentRepository, IncidentEventRepository incidentEventRepository) {
         this.alertRepository = alertRepository;
         this.alertMapper = alertMapper;
         this.serviceRepository = serviceRepository;
         this.incidentRepository = incidentRepository;
+        this.incidentEventRepository = incidentEventRepository;
     }
 
 
@@ -44,21 +49,28 @@ public class AlertService {
         );
 
         Incident incident;
-
+        IncidentEvent event = new IncidentEvent();
         if (optionalIncident.isEmpty()) {
             incident = new Incident();
             incident.setErrorCode(alert.getErrorCode());
             incident.setService(service);
             incident.setDescription(alert.getMessage());
-            incident.addAlert(alert);
+
+            event.setEventType(IncidentEventType.CREATED);
 
             incidentRepository.save(incident);
 
         } else {
             incident = optionalIncident.get();
-            incident.addAlert(alert);
-        }
 
+            event.setEventType(IncidentEventType.ALERT_ADDED);
+        }
+        event.setIncident(incident);
+        event.setDescription(incident.getDescription());
+
+        incidentEventRepository.save(event);
+
+        incident.addAlert(alert);
         var savedAlert = alertRepository.save(alert);
 
         return alertMapper.toAlertResponse(savedAlert);
