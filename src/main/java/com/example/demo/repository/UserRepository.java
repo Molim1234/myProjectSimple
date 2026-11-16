@@ -10,4 +10,5 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     List<User> findAllByTeam_Id(UUID teamId);
 
+    boolean existsByEmail(String email);
 }

@@ -2,7 +2,6 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.CreateTeam;
 import com.example.demo.dto.TeamResponse;
-import com.example.demo.repository.TeamRepository;
 import com.example.demo.service.TeamService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;

@@ -3,6 +3,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.CreateTeam;
 import com.example.demo.dto.TeamResponse;
+import com.example.demo.exception.ConflictException;
 import com.example.demo.mapper.TeamMapper;
 import com.example.demo.repository.TeamRepository;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,9 @@ public class TeamService {
 
     public void deleteTeam(UUID uuid) {
         var team = teamRepository.findById(uuid).orElseThrow(()-> new NoSuchElementException("Team not found"));
+        if(!team.getUsers().isEmpty()){
+            throw new ConflictException("Can't delete team with users");
+        }
         teamRepository.delete(team);
     }
 }
