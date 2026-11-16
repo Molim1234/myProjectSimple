@@ -65,8 +65,8 @@ public class AlertService {
 
             event.setEventType(IncidentEventType.ALERT_ADDED);
         }
-        event.setIncident(incident);
-        event.setDescription(incident.getDescription());
+        incident.addEvent(event);
+        event.setDescription(alert.getMessage());
 
         incidentEventRepository.save(event);
 

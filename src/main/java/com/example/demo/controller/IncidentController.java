@@ -1,6 +1,8 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.IncidentEventResponse;
 import com.example.demo.dto.IncidentResponse;
+import com.example.demo.service.IncidentEventService;
 import com.example.demo.service.IncidentService;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,9 +14,11 @@ import java.util.UUID;
 public class IncidentController {
 
     private final IncidentService incidentService;
+    private final IncidentEventService incidentEventService;
 
-    public IncidentController(IncidentService incidentService) {
+    public IncidentController(IncidentService incidentService, IncidentEventService incidentEventService) {
         this.incidentService = incidentService;
+        this.incidentEventService = incidentEventService;
     }
 
     @GetMapping
@@ -27,6 +31,11 @@ public class IncidentController {
         return incidentService.getIncident(uuid);
     }
 
+    @GetMapping("/{uuid}/events")
+    public List<IncidentEventResponse> getIncidentEvents(@PathVariable UUID uuid){
+       return incidentEventService.getIncidentEvents(uuid);
+    }
+
     @PatchMapping("/{uuid}/acknowledge")
     public IncidentResponse setAcknowledge(@PathVariable UUID uuid){
         return incidentService.setAcknowledge(uuid);
@@ -36,5 +45,8 @@ public class IncidentController {
     public IncidentResponse setResolved(@PathVariable UUID uuid){
         return incidentService.setResolved(uuid);
     }
+
+
+
 
 }

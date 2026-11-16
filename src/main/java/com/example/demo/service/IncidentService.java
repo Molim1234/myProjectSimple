@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.IncidentEventResponse;
 import com.example.demo.dto.IncidentResponse;
 import com.example.demo.entity.IncidentEvent;
 import com.example.demo.entity.IncidentEventType;
@@ -44,17 +45,32 @@ public class IncidentService {
 
 
     public IncidentResponse setAcknowledge(UUID uuid) {
-        var incident = incidentRepository.findById(uuid).orElseThrow(()->new NoSuchElementException("Incident not found"));
-        if(incident.getStatus() == IncidentStatus.RESOLVED){
+
+        var incident = incidentRepository.findById(uuid)
+                .orElseThrow(() -> new NoSuchElementException("Incident not found"));
+
+        if (incident.getStatus() == IncidentStatus.RESOLVED) {
             throw new ConflictException("Resolved incident cannot be acknowledged");
         }
+
+        if (incident.getStatus() == IncidentStatus.ACKNOWLEDGED) {
+            return incidentMapper.toIncidentResponse(incident);
+        }
+
         incident.setStatus(IncidentStatus.ACKNOWLEDGED);
 
-        IncidentEvent event = new IncidentEvent(incident, IncidentEventType.ACKNOWLEDGED, incident.getDescription());
 
+        IncidentEvent event = new IncidentEvent(
+                incident,
+                IncidentEventType.ACKNOWLEDGED,
+                "Incident acknowledged"
+        );
+
+        incident.addEvent(event);
         incidentEventRepository.save(event);
 
         var savedIncident = incidentRepository.save(incident);
+
         return incidentMapper.toIncidentResponse(savedIncident);
     }
 
@@ -64,18 +80,26 @@ public class IncidentService {
         var incident = incidentRepository.findById(uuid)
                 .orElseThrow(() -> new NoSuchElementException("Incident not found"));
 
-        if (incident.getStatus() != IncidentStatus.RESOLVED) {
-
-            incident.setStatus(IncidentStatus.RESOLVED);
-            incident.setResolvedAt(LocalDateTime.now());
+        if (incident.getStatus() == IncidentStatus.RESOLVED) {
+            return incidentMapper.toIncidentResponse(incident);
         }
 
-        IncidentEvent event = new IncidentEvent(incident, IncidentEventType.RESOLVED, incident.getDescription());
+        incident.setStatus(IncidentStatus.RESOLVED);
+        incident.setResolvedAt(LocalDateTime.now());
 
+        IncidentEvent event = new IncidentEvent(
+                incident,
+                IncidentEventType.RESOLVED,
+                "Incident resolved"
+        );
+
+        incident.addEvent(event);
         incidentEventRepository.save(event);
 
         var savedIncident = incidentRepository.save(incident);
 
         return incidentMapper.toIncidentResponse(savedIncident);
     }
+
+
 }
