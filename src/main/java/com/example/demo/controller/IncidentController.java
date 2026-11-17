@@ -1,9 +1,11 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.AssignIncident;
 import com.example.demo.dto.IncidentEventResponse;
 import com.example.demo.dto.IncidentResponse;
 import com.example.demo.service.IncidentEventService;
 import com.example.demo.service.IncidentService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,6 +48,10 @@ public class IncidentController {
         return incidentService.setResolved(uuid);
     }
 
+    @PatchMapping("/{uuid}/assign")
+    public void assignIncident(@RequestBody @Valid AssignIncident assignIncident, @PathVariable UUID uuid){
+        incidentService.assignIncident(assignIncident, uuid);
+    }
 
 
 

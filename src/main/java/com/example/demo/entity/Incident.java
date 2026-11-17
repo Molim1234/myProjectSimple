@@ -41,6 +41,10 @@ public class Incident {
     @OneToMany(mappedBy = "incident")
     private List<IncidentEvent> events = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_user_id")
+    private User assignedUser;
+
 
     public void addAlert(Alert alert) {
         if (alert == null) {
@@ -138,5 +142,13 @@ public class Incident {
 
     public void setErrorCode(String errorCode) {
         this.errorCode = errorCode;
+    }
+
+    public User getAssignedUser() {
+        return assignedUser;
+    }
+
+    public void setAssignedUser(User assignedUser) {
+        this.assignedUser = assignedUser;
     }
 }

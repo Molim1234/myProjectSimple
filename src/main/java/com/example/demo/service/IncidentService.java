@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.AssignIncident;
 import com.example.demo.dto.IncidentEventResponse;
 import com.example.demo.dto.IncidentResponse;
 import com.example.demo.entity.IncidentEvent;
@@ -9,7 +10,9 @@ import com.example.demo.exception.ConflictException;
 import com.example.demo.mapper.IncidentMapper;
 import com.example.demo.repository.IncidentEventRepository;
 import com.example.demo.repository.IncidentRepository;
+import com.example.demo.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,11 +27,13 @@ public class IncidentService {
     private final IncidentRepository incidentRepository;
     private final IncidentMapper incidentMapper;
     private final IncidentEventRepository incidentEventRepository;
+    private final UserRepository userRepository;
 
-    public IncidentService(IncidentRepository incidentRepository, IncidentMapper incidentMapper, IncidentEventRepository incidentEventRepository) {
+    public IncidentService(IncidentRepository incidentRepository, IncidentMapper incidentMapper, IncidentEventRepository incidentEventRepository, UserRepository userRepository) {
         this.incidentRepository = incidentRepository;
         this.incidentMapper = incidentMapper;
         this.incidentEventRepository = incidentEventRepository;
+        this.userRepository = userRepository;
     }
 
 
@@ -101,5 +106,14 @@ public class IncidentService {
         return incidentMapper.toIncidentResponse(savedIncident);
     }
 
-
+@Transactional
+    public void assignIncident(@Valid AssignIncident assignIncident, UUID uuid) {
+        var incident = incidentRepository.findById(uuid).orElseThrow(()-> new NoSuchElementException("Incident not found"));
+        var user = userRepository.findById(assignIncident.getUserId()).orElseThrow(()-> new NoSuchElementException("User not found"));
+        if(user.getTeam().getId() != incident.getService().getTeam().getId()){
+            throw new ConflictException("Team conflict");
+        }
+        incident.setAssignedUser(user);
+        incidentRepository.save(incident);
+    }
 }
