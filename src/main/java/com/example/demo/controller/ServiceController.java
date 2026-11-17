@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.CreateService;
+import com.example.demo.dto.UpdateService;
 import com.example.demo.entity.Services;
 import com.example.demo.service.ServiceService;
 import jakarta.validation.Valid;
@@ -36,8 +37,8 @@ public class ServiceController {
     }
 
     @PutMapping("/{uuid}")
-    public Services updateService(@PathVariable UUID uuid, @RequestBody @Valid CreateService createService){
-        return serviceService.updateService(uuid, createService);
+    public Services updateService(@PathVariable UUID uuid, @RequestBody @Valid UpdateService updateService){
+        return serviceService.updateService(uuid, updateService);
     }
 
     @DeleteMapping("/{uuid}")

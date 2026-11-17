@@ -5,6 +5,7 @@ import com.example.demo.dto.CreateTeam;
 import com.example.demo.dto.TeamResponse;
 import com.example.demo.exception.ConflictException;
 import com.example.demo.mapper.TeamMapper;
+import com.example.demo.repository.ServiceRepository;
 import com.example.demo.repository.TeamRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -18,10 +19,12 @@ public class TeamService {
 
     private final TeamRepository teamRepository;
     private final TeamMapper teamMapper;
+    private final ServiceRepository serviceRepository;
 
-    public TeamService(TeamRepository teamRepository, TeamMapper teamMapper) {
+    public TeamService(TeamRepository teamRepository, TeamMapper teamMapper, ServiceRepository serviceRepository) {
         this.teamRepository = teamRepository;
         this.teamMapper = teamMapper;
+        this.serviceRepository = serviceRepository;
     }
 
     public TeamResponse createTeam(CreateTeam createTeam) {
@@ -43,10 +46,17 @@ public class TeamService {
 
     @Transactional
     public void deleteTeam(UUID uuid) {
-        var team = teamRepository.findById(uuid).orElseThrow(()-> new NoSuchElementException("Team not found"));
-        if(!team.getUsers().isEmpty()){
+        var team = teamRepository.findById(uuid)
+                .orElseThrow(() -> new NoSuchElementException("Team not found"));
+
+        if (!team.getUsers().isEmpty()) {
             throw new ConflictException("Can't delete team with users");
         }
+
+        if (serviceRepository.existsByTeam_Id(uuid)) {
+            throw new ConflictException("Can't delete team with services");
+        }
+
         teamRepository.delete(team);
     }
 }

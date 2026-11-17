@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.CreateService;
+import com.example.demo.dto.UpdateService;
 import com.example.demo.entity.Services;
 import com.example.demo.mapper.ServiceMapper;
 import com.example.demo.repository.ServiceRepository;
@@ -42,10 +43,10 @@ public class ServiceService {
     }
 
     @Transactional
-    public Services updateService(UUID uuid, CreateService createService) {
+    public Services updateService(UUID uuid, UpdateService updateService) {
         var service = serviceRepository.findById(uuid).orElseThrow(()-> new NoSuchElementException("Service not found"));
 
-        serviceMapper.updateServices(service, createService);
+        serviceMapper.updateServices(service, updateService);
         return serviceRepository.save(service);
     }
 
