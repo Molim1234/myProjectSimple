@@ -23,7 +23,10 @@ public class IncidentMapper {
                 incident.getService().getId(),
                 incident.getAlerts().stream()
                         .map(alert -> alert.getId())
-                        .toList()
+                        .toList(),
+                incident.getAssignedUser() != null
+                        ? incident.getAssignedUser().getId()
+                        : null
         );
     }
 

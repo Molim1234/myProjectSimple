@@ -49,8 +49,8 @@ public class IncidentController {
     }
 
     @PatchMapping("/{uuid}/assign")
-    public void assignIncident(@RequestBody @Valid AssignIncident assignIncident, @PathVariable UUID uuid){
-        incidentService.assignIncident(assignIncident, uuid);
+    public IncidentResponse assignIncident(@RequestBody @Valid AssignIncident assignIncident, @PathVariable UUID uuid){
+       return incidentService.assignIncident(assignIncident, uuid);
     }
 
 

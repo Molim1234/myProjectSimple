@@ -18,21 +18,12 @@ public class IncidentResponse {
     private LocalDateTime resolvedAt;
     private UUID serviceId;
     private List<UUID> alertIds;
+    private UUID assignedUserId;
 
     public IncidentResponse() {
     }
 
-    public IncidentResponse(
-            UUID id,
-            String errorCode,
-            String description,
-            IncidentStatus status,
-            LocalDateTime createdAt,
-            LocalDateTime updatedAt,
-            LocalDateTime resolvedAt,
-            UUID serviceId,
-            List<UUID> alertIds
-    ) {
+    public IncidentResponse(UUID id, String errorCode, String description, IncidentStatus status, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime resolvedAt, UUID serviceId, List<UUID> alertIds, UUID assignedUserId) {
         this.id = id;
         this.errorCode = errorCode;
         this.description = description;
@@ -42,6 +33,7 @@ public class IncidentResponse {
         this.resolvedAt = resolvedAt;
         this.serviceId = serviceId;
         this.alertIds = alertIds;
+        this.assignedUserId = assignedUserId;
     }
 
     public UUID getId() {
@@ -114,6 +106,14 @@ public class IncidentResponse {
 
     public void setAlertIds(List<UUID> alertIds) {
         this.alertIds = alertIds;
+    }
+
+    public UUID getAssignedUserId() {
+        return assignedUserId;
+    }
+
+    public void setAssignedUserId(UUID assignedUserId) {
+        this.assignedUserId = assignedUserId;
     }
 }
 

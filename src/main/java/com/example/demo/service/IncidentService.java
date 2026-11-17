@@ -107,13 +107,17 @@ public class IncidentService {
     }
 
 @Transactional
-    public void assignIncident(@Valid AssignIncident assignIncident, UUID uuid) {
+    public IncidentResponse assignIncident(@Valid AssignIncident assignIncident, UUID uuid) {
         var incident = incidentRepository.findById(uuid).orElseThrow(()-> new NoSuchElementException("Incident not found"));
         var user = userRepository.findById(assignIncident.getUserId()).orElseThrow(()-> new NoSuchElementException("User not found"));
-        if(user.getTeam().getId() != incident.getService().getTeam().getId()){
+        if(!user.getTeam().getId().equals(incident.getService().getTeam().getId())){
             throw new ConflictException("Team conflict");
         }
         incident.setAssignedUser(user);
-        incidentRepository.save(incident);
+        var savedIncient = incidentRepository.save(incident);
+        var incidentEvent = new IncidentEvent(savedIncient, IncidentEventType.ASSIGNED, "Incident assigned to "+user.getFirstName()+" "+user.getLastName());
+        savedIncient.addEvent(incidentEvent);
+        incidentEventRepository.save(incidentEvent);
+        return incidentMapper.toIncidentResponse(savedIncient);
     }
 }

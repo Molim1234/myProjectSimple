@@ -4,5 +4,6 @@ public enum IncidentEventType {
     CREATED,
     ACKNOWLEDGED,
     RESOLVED,
-    ALERT_ADDED
+    ALERT_ADDED,
+    ASSIGNED
 }
