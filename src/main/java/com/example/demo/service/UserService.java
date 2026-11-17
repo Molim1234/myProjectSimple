@@ -52,7 +52,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<UserResponse> getUsersByTeam(UUID TeamUuid) {
 
-        var team = teamRepository.findById(TeamUuid).orElseThrow(()->new NoSuchElementException("Team not found"));
+        teamRepository.findById(TeamUuid).orElseThrow(()->new NoSuchElementException("Team not found"));
 
         var list = userRepository.findAllByTeam_Id(TeamUuid);
         return userMapper.toUserResponseList(list);

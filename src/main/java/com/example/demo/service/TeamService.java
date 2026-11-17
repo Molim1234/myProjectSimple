@@ -6,6 +6,7 @@ import com.example.demo.dto.TeamResponse;
 import com.example.demo.exception.ConflictException;
 import com.example.demo.mapper.TeamMapper;
 import com.example.demo.repository.TeamRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,6 +41,7 @@ public class TeamService {
         return teamMapper.toTeamResponse(team);
     }
 
+    @Transactional
     public void deleteTeam(UUID uuid) {
         var team = teamRepository.findById(uuid).orElseThrow(()-> new NoSuchElementException("Team not found"));
         if(!team.getUsers().isEmpty()){

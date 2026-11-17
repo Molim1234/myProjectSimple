@@ -3,6 +3,8 @@ package com.example.demo.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.UUID;
+
 public class CreateService {
 
     @NotBlank
@@ -13,6 +15,9 @@ public class CreateService {
     private String baseUrl;
 
     private boolean active;
+
+    @NotNull
+    private UUID teamId;
 
     public CreateService(String name, String description, String baseUrl, boolean active) {
         this.name = name;
@@ -54,5 +59,13 @@ public class CreateService {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public UUID getTeamId() {
+        return teamId;
+    }
+
+    public void setTeamId(UUID teamId) {
+        this.teamId = teamId;
     }
 }
