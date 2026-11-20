@@ -1,6 +1,7 @@
 package com.example.demo.repository;
 
 import com.example.demo.entity.Incident;
+import com.example.demo.entity.IncidentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,4 +18,6 @@ public interface IncidentRepository extends JpaRepository<Incident, UUID> {
 
     List<Incident> findIncidentsByAssignedUser_Id(UUID assignedUserId);
 
+    @Query("select i from Incident i where i.assignedUser.id = :userId and i.status in :statuses")
+    List<Incident> findActiveIncidentsByUser_Id(@Param("userId") UUID userId, @Param("statuses")List<IncidentStatus> list);
 }
