@@ -53,6 +53,11 @@ public class IncidentController {
        return incidentService.assignIncident(assignIncident, uuid);
     }
 
+    @GetMapping("/assigned/{userId}")
+    public List<IncidentResponse> getIncidentsByUser(@PathVariable UUID userId){
+        return incidentService.getIncidentsByUser(userId);
+    }
+
 
 
 }

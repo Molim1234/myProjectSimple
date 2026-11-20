@@ -120,4 +120,10 @@ public class IncidentService {
         incidentEventRepository.save(incidentEvent);
         return incidentMapper.toIncidentResponse(savedIncient);
     }
+
+    public List<IncidentResponse> getIncidentsByUser(UUID userId) {
+        var user = userRepository.findById(userId).orElseThrow(()-> new NoSuchElementException("User not found"));
+        var listOfIncidentsByUser = incidentRepository.findIncidentsByAssignedUser_Id(userId);
+        return incidentMapper.toIncidentResponseList(listOfIncidentsByUser);
+    }
 }
