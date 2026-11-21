@@ -122,13 +122,13 @@ public class IncidentService {
     }
 
     public List<IncidentResponse> getIncidentsByUser(UUID userId) {
-        var user = userRepository.findById(userId).orElseThrow(()-> new NoSuchElementException("User not found"));
+        userRepository.findById(userId).orElseThrow(()-> new NoSuchElementException("User not found"));
         var listOfIncidentsByUser = incidentRepository.findIncidentsByAssignedUser_Id(userId);
         return incidentMapper.toIncidentResponseList(listOfIncidentsByUser);
     }
 
     public List<IncidentResponse> getActiveIncidentsByUser(UUID userId) {
-        var user = userRepository.findById(userId).orElseThrow(()-> new NoSuchElementException("User not found"));
+        userRepository.findById(userId).orElseThrow(()-> new NoSuchElementException("User not found"));
         var list = List.of(IncidentStatus.OPEN, IncidentStatus.ACKNOWLEDGED);
         var listOfActiveIncidentsByUser = incidentRepository.findActiveIncidentsByUser_Id(userId, list);
         return incidentMapper.toIncidentResponseList(listOfActiveIncidentsByUser);
