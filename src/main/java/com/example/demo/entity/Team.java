@@ -21,6 +21,14 @@ public class Team {
     @OneToMany(mappedBy = "team")
     private List<User> users = new ArrayList<>();
 
+    @OneToOne(
+            mappedBy = "team",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private EscalationPolicy escalationPolicy;
+
     public Team() {
     }
 
@@ -56,6 +64,17 @@ public class Team {
 
     public List<User> getUsers() {
         return users;
+    }
+
+    public EscalationPolicy getEscalationPolicy() {
+        return escalationPolicy;
+    }
+
+    public void setEscalationPolicy(EscalationPolicy escalationPolicy) {
+        this.escalationPolicy = escalationPolicy;
+        if (escalationPolicy != null) {
+            escalationPolicy.setTeam(this);
+        }
     }
 
     public void setUsers(List<User> users) {
