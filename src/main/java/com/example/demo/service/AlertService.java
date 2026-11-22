@@ -49,6 +49,7 @@ public class AlertService {
         Incident incident;
         IncidentEvent event = new IncidentEvent();
         if (optionalIncident.isEmpty()) {
+
             incident = new Incident();
             incident.setErrorCode(alert.getErrorCode());
             incident.setService(service);
@@ -69,7 +70,9 @@ public class AlertService {
             }
             incident.setAssignedUser(u);
             incidentRepository.save(incident);
-
+            IncidentEvent event2 = new IncidentEvent(incident, IncidentEventType.ASSIGNED, alert.getMessage());
+            incident.addEvent(event2);
+            incidentEventRepository.save(event2);
         } else {
             incident = optionalIncident.get();
 
