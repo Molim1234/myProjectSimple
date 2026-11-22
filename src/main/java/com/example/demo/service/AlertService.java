@@ -47,7 +47,6 @@ public class AlertService {
         );
 
         Incident incident;
-        IncidentEvent event = new IncidentEvent();
         if (optionalIncident.isEmpty()) {
 
             incident = new Incident();
@@ -55,33 +54,50 @@ public class AlertService {
             incident.setService(service);
             incident.setDescription(alert.getMessage());
 
-            event.setEventType(IncidentEventType.CREATED);
-
-            var lista = service.getTeam().getEscalationPolicy().getLevels();
-            User u=null;
-            for(EscalationLevel l:lista){
-                if(l.getLevel()==1){
-                    u=l.getUser();
+            var levels = service.getTeam().getEscalationPolicy().getLevels();
+            User firstLevelUser = null;
+            for (EscalationLevel level : levels) {
+                if (level.getLevel() == 1) {
+                    firstLevelUser = level.getUser();
                     break;
                 }
             }
-            if(u==null){
+
+            if (firstLevelUser == null) {
                 throw new NoSuchElementException("Didnt find the user with level 1");
             }
-            incident.setAssignedUser(u);
+
+            incident.setAssignedUser(firstLevelUser);
             incidentRepository.save(incident);
-            IncidentEvent event2 = new IncidentEvent(incident, IncidentEventType.ASSIGNED, alert.getMessage());
-            incident.addEvent(event2);
-            incidentEventRepository.save(event2);
+
+            // Record creation before assignment so the event history is chronological.
+            IncidentEvent createdEvent = new IncidentEvent(
+                    incident,
+                    IncidentEventType.CREATED,
+                    alert.getMessage()
+            );
+            incident.addEvent(createdEvent);
+            incidentEventRepository.save(createdEvent);
+
+            IncidentEvent assignedEvent = new IncidentEvent(
+                    incident,
+                    IncidentEventType.ASSIGNED,
+                    "Incident assigned to " + firstLevelUser.getFirstName() + " " + firstLevelUser.getLastName()
+            );
+            incident.addEvent(assignedEvent);
+            incidentEventRepository.save(assignedEvent);
+
         } else {
             incident = optionalIncident.get();
 
-            event.setEventType(IncidentEventType.ALERT_ADDED);
+            IncidentEvent alertAddedEvent = new IncidentEvent(
+                    incident,
+                    IncidentEventType.ALERT_ADDED,
+                    alert.getMessage()
+            );
+            incident.addEvent(alertAddedEvent);
+            incidentEventRepository.save(alertAddedEvent);
         }
-        incident.addEvent(event);
-        event.setDescription(alert.getMessage());
-
-        incidentEventRepository.save(event);
 
         incident.addAlert(alert);
         var savedAlert = alertRepository.save(alert);
