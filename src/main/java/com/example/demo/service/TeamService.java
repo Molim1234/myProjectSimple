@@ -3,6 +3,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.CreateTeam;
 import com.example.demo.dto.TeamResponse;
+import com.example.demo.entity.EscalationPolicy;
 import com.example.demo.exception.ConflictException;
 import com.example.demo.mapper.TeamMapper;
 import com.example.demo.repository.ServiceRepository;
@@ -27,8 +28,11 @@ public class TeamService {
         this.serviceRepository = serviceRepository;
     }
 
+    @Transactional
     public TeamResponse createTeam(CreateTeam createTeam) {
         var team = teamMapper.toTeam(createTeam);
+        var policy = new EscalationPolicy(team.getName(), team);
+        team.setEscalationPolicy(policy);
         var savedTeam = teamRepository.save(team);
         return teamMapper.toTeamResponse(savedTeam);
     }
