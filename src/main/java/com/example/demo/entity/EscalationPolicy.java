@@ -46,8 +46,6 @@ public class EscalationPolicy {
         level.setEscalationPolicy(null);
     }
 
-    // Getters and setters
-
     public UUID getId() {
         return id;
     }

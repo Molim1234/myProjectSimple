@@ -2,9 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.AlertResponse;
 import com.example.demo.dto.CreateAlert;
-import com.example.demo.entity.Incident;
-import com.example.demo.entity.IncidentEvent;
-import com.example.demo.entity.IncidentEventType;
+import com.example.demo.entity.*;
 import com.example.demo.mapper.AlertMapper;
 import com.example.demo.repository.AlertRepository;
 import com.example.demo.repository.IncidentEventRepository;
@@ -58,6 +56,18 @@ public class AlertService {
 
             event.setEventType(IncidentEventType.CREATED);
 
+            var lista = service.getTeam().getEscalationPolicy().getLevels();
+            User u=null;
+            for(EscalationLevel l:lista){
+                if(l.getLevel()==1){
+                    u=l.getUser();
+                    break;
+                }
+            }
+            if(u==null){
+                throw new NoSuchElementException("Didnt find the user with level 1");
+            }
+            incident.setAssignedUser(u);
             incidentRepository.save(incident);
 
         } else {

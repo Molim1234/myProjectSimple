@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -51,10 +52,13 @@ public class EscalationPolicyService {
         escalationPolicyRepository.save(policy);
     }
 
-
+    @Transactional
     public List<EscalationLevelResponse> getAllLevelsByteam(UUID teamId) {
         var team = teamRepository.findById(teamId).orElseThrow(()-> new NoSuchElementException("Team not found"));
-        var levels = team.getEscalationPolicy().getLevels();
+        var levels = team.getEscalationPolicy().getLevels()
+                .stream()
+                .sorted(Comparator.comparing(EscalationLevel::getLevel))
+                .toList();
         return escalationLevelMapper.toEscalationLevelResponseList(levels);
     }
 }
