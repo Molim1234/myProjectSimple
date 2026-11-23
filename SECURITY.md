@@ -55,12 +55,16 @@ Authorization: Bearer <access-token>
 
 - Public: `POST /api/auth/bootstrap`, `POST /api/auth/login`, `POST /api/auth/refresh`, `POST /api/auth/logout`.
 - Public health probe: `GET /actuator/health`.
-- Administrator only: all `/api/users/**`, `/api/teams/**`, and `/api/escalation-policies/**` routes, plus write operations on `/api/services/**`.
+- Administrator only: all `/api/users/**`, `/api/teams/**`, and `/api/escalation-policies/**` routes, dashboard routes, and write operations on `/api/services/**`.
+- `GET /api/incidents` and incident assignment are administrator-only.
+- A `USER` can read, acknowledge, resolve, and view events only for incidents assigned to that user. The assigned-user list endpoint also prevents a user from requesting another user's incidents.
 - All other API routes require a valid access token.
 
-New users are created by an administrator through `POST /api/users`; passwords must be at least 12 characters. New accounts receive the `USER` role. The first administrator is created only through bootstrap. User passwords are stored using BCrypt (strength 12), never as plain text.
+New users are created by an administrator through `POST /api/users`; passwords must be at least 12 characters. New accounts receive the `USER` role. An administrator can promote a user or demote another administrator through `PATCH /api/users/{userId}/role`. The last administrator cannot be demoted or deleted. Role changes revoke refresh tokens; an already-issued access token keeps its existing claims until its 15-minute expiry.
 
 An administrator can set or reset a user's password through `PATCH /api/users/{userId}/password`. This also revokes that user's refresh tokens. This endpoint is useful for legacy users whose accounts existed before password authentication was introduced.
+
+User passwords are stored using BCrypt (strength 12), never as plain text.
 
 ## Database compatibility
 

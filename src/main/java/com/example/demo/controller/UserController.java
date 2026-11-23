@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.CreateUser;
 import com.example.demo.dto.SetUserPasswordRequest;
+import com.example.demo.dto.SetUserRoleRequest;
 import com.example.demo.dto.UserResponse;
 import com.example.demo.service.UserService;
 import jakarta.validation.Valid;
@@ -40,6 +41,12 @@ public class UserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void setUserPassword(@PathVariable UUID uuid, @RequestBody @Valid SetUserPasswordRequest request) {
         userService.setUserPassword(uuid, request.getPassword());
+    }
+
+    @PatchMapping("/{uuid}/role")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void setUserRole(@PathVariable UUID uuid, @RequestBody @Valid SetUserRoleRequest request) {
+        userService.setUserRole(uuid, request.getRole());
     }
 
     @DeleteMapping("/{uuid}")

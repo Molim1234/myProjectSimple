@@ -56,6 +56,24 @@ public class UserService {
         refreshTokenRepository.revokeAllByUserId(userId);
     }
 
+    @Transactional
+    public void setUserRole(UUID userId, UserRole newRole) {
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
+        if (user.getRole() == newRole) {
+            return;
+        }
+        if (user.getRole() == UserRole.ADMIN && newRole == UserRole.USER
+                && userRepository.countByRole(UserRole.ADMIN) <= 1) {
+            throw new ConflictException("The last administrator cannot be demoted");
+        }
+        user.setRole(newRole);
+        userRepository.save(user);
+        // Role claims are embedded in access tokens; revoke refresh tokens so new tokens
+        // cannot keep the old role. Existing access tokens expire within 15 minutes.
+        refreshTokenRepository.revokeAllByUserId(userId);
+    }
+
     @Transactional(readOnly = true)
     public List<UserResponse> getAllUsers() {
         return userMapper.toUserResponseList(userRepository.findAll());
