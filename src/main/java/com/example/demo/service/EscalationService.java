@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-
+import java.util.Comparator;
 
 @Service
 @RequiredArgsConstructor
@@ -20,47 +20,61 @@ public class EscalationService {
 
     @Scheduled(fixedRate = 30000)
     @Transactional
-    public void checkIncidentsForEscalation(){
+    public void checkIncidentsForEscalation() {
+        LocalDateTime now = LocalDateTime.now();
 
-       var list = incidentRepository.findIncidentsByStatus(IncidentStatus.OPEN);
-       if(list.isEmpty())
-           return;
+        var incidents = incidentRepository.findOverdueIncidentsForEscalation(
+                IncidentStatus.OPEN,
+                now
+        );
 
-       for(Incident i:list){
-           if(i.getNextEscalationAt()!=null && !i.getNextEscalationAt().isAfter(LocalDateTime.now())){
-               var levels = i.getService().getTeam().getEscalationPolicy().getLevels();
-               for(EscalationLevel e:levels){
-                   if(e.getLevel()==i.getCurrentEscalationLevel()+1){
-                       boolean check = false;
-                       for(EscalationLevel lev:levels){
-                           if(lev.getLevel() == e.getLevel() + 1){
-                               check = true;
-                               break;
-                           }
-                       }
-                       if(check){
-                           i.setNextEscalationAt(LocalDateTime.now().plusMinutes(e.getTimeoutMinutes()));
-                       }else{
-                           i.setNextEscalationAt(null);
-                       }
-                       i.setCurrentEscalationLevel(i.getCurrentEscalationLevel()+1);
-                       i.setAssignedUser(e.getUser());
+        for (Incident incident : incidents) {
+            var levels = incident.getService()
+                    .getTeam()
+                    .getEscalationPolicy()
+                    .getLevels();
 
-                       IncidentEvent createdEvent = new IncidentEvent(
-                               i,
-                               IncidentEventType.ASSIGNED,
-                               "Incident assigned to " + e.getUser().getFirstName() + " " + e.getUser().getLastName()
-                       );
-                       i.addEvent(createdEvent);
-                       incidentEventRepository.save(createdEvent);
-                       incidentRepository.save(i);
-                       break;
-                   }
-               }
-           }
-       }
+            int currentLevel = incident.getCurrentEscalationLevel() == null
+                    ? 0
+                    : incident.getCurrentEscalationLevel();
 
+            var nextLevel = levels.stream()
+                    .filter(level -> level.getLevel() > currentLevel)
+                    .min(Comparator.comparingInt(EscalationLevel::getLevel))
+                    .orElse(null);
+
+            if (nextLevel == null) {
+                // No further level is configured; stop checking this incident.
+                incident.setNextEscalationAt(null);
+                incidentRepository.save(incident);
+                continue;
+            }
+
+            boolean hasFollowingLevel = levels.stream()
+                    .anyMatch(level -> level.getLevel() > nextLevel.getLevel());
+
+            if (hasFollowingLevel) {
+                incident.setNextEscalationAt(
+                        now.plusMinutes(nextLevel.getTimeoutMinutes())
+                );
+            } else {
+                // The final escalation level has been reached.
+                incident.setNextEscalationAt(null);
+            }
+
+            incident.setCurrentEscalationLevel(nextLevel.getLevel());
+            incident.setAssignedUser(nextLevel.getUser());
+
+            IncidentEvent event = new IncidentEvent(
+                    incident,
+                    IncidentEventType.ASSIGNED,
+                    "Incident assigned to " + nextLevel.getUser().getFirstName()
+                            + " " + nextLevel.getUser().getLastName()
+            );
+
+            incident.addEvent(event);
+            incidentEventRepository.save(event);
+            incidentRepository.save(incident);
+        }
     }
-
-
 }
