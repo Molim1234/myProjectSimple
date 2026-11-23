@@ -9,6 +9,8 @@ import com.example.demo.repository.IncidentEventRepository;
 import com.example.demo.repository.IncidentRepository;
 import com.example.demo.repository.ServiceRepository;
 import jakarta.transaction.Transactional;
+
+import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -68,6 +70,20 @@ public class AlertService {
             }
 
             incident.setAssignedUser(firstLevelUser);
+            incident.setCurrentEscalationLevel(1);
+
+            boolean hasNextLevel = levels.stream()
+                    .anyMatch(level -> level.getLevel() == 2);
+            if (hasNextLevel) {
+                EscalationLevel firstLevel = levels.stream()
+                        .filter(level -> level.getLevel() == 1)
+                        .findFirst()
+                        .orElseThrow();
+                incident.setNextEscalationAt(
+                        LocalDateTime.now().plusMinutes(firstLevel.getTimeoutMinutes())
+                );
+            }
+
             incidentRepository.save(incident);
 
             // Record creation before assignment so the event history is chronological.
