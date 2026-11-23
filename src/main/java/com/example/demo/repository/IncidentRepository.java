@@ -20,4 +20,6 @@ public interface IncidentRepository extends JpaRepository<Incident, UUID> {
 
     @Query("select i from Incident i where i.assignedUser.id = :userId and i.status in :statuses")
     List<Incident> findActiveIncidentsByUser_Id(@Param("userId") UUID userId, @Param("statuses")List<IncidentStatus> list);
+
+    List<Incident> findIncidentsByStatus(IncidentStatus status);
 }

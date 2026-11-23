@@ -86,7 +86,7 @@ public class AlertService {
 
             incidentRepository.save(incident);
 
-            // Record creation before assignment so the event history is chronological.
+
             IncidentEvent createdEvent = new IncidentEvent(
                     incident,
                     IncidentEventType.CREATED,
