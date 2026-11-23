@@ -7,6 +7,7 @@ import com.example.demo.repository.IncidentRepository;
 import com.example.demo.repository.ServiceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +17,7 @@ public class DashboardService {
     private final ServiceRepository serviceRepository;
     private final IncidentMapper incidentMapper;
 
+    @Transactional(readOnly = true)
     public DashboardResponse dashboardResponse() {
 
         long open = incidentRepository.countAllByStatus(IncidentStatus.OPEN);
