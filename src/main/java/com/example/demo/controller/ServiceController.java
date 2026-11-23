@@ -47,7 +47,7 @@ public class ServiceController {
         return serviceService.deleteService(uuid);
     }
 
-    @GetMapping
+    @GetMapping("/health")
     public List<ServiceHealthResponse> getServicesHealth(){
         return serviceService.getServicesHealth();
     }
