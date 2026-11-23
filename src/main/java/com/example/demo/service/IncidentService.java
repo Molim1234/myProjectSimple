@@ -1,7 +1,6 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.AssignIncident;
-import com.example.demo.dto.IncidentEventResponse;
 import com.example.demo.dto.IncidentResponse;
 import com.example.demo.entity.IncidentEvent;
 import com.example.demo.entity.IncidentEventType;
@@ -36,22 +35,19 @@ public class IncidentService {
         this.userRepository = userRepository;
     }
 
-
     public List<IncidentResponse> getAllIncidents() {
         var list = incidentRepository.findAll();
         return incidentMapper.toIncidentResponseList(list);
     }
 
-
     public IncidentResponse getIncident(UUID uuid) {
-        var incident = incidentRepository.findById(uuid).orElseThrow(()-> new NoSuchElementException("Incident not found"));
+        var incident = incidentRepository.findById(uuid)
+                .orElseThrow(() -> new NoSuchElementException("Incident not found"));
         return incidentMapper.toIncidentResponse(incident);
     }
 
-
     public IncidentResponse setAcknowledge(UUID uuid) {
-
-        var incident = incidentRepository.findById(uuid)
+        var incident = incidentRepository.findByIdForUpdate(uuid)
                 .orElseThrow(() -> new NoSuchElementException("Incident not found"));
 
         if (incident.getStatus() == IncidentStatus.RESOLVED) {
@@ -65,7 +61,6 @@ public class IncidentService {
         incident.setStatus(IncidentStatus.ACKNOWLEDGED);
         incident.setNextEscalationAt(null);
 
-
         IncidentEvent event = new IncidentEvent(
                 incident,
                 IncidentEventType.ACKNOWLEDGED,
@@ -76,14 +71,11 @@ public class IncidentService {
         incidentEventRepository.save(event);
 
         var savedIncident = incidentRepository.save(incident);
-
         return incidentMapper.toIncidentResponse(savedIncident);
     }
 
-
     public IncidentResponse setResolved(UUID uuid) {
-
-        var incident = incidentRepository.findById(uuid)
+        var incident = incidentRepository.findByIdForUpdate(uuid)
                 .orElseThrow(() -> new NoSuchElementException("Incident not found"));
 
         if (incident.getStatus() == IncidentStatus.RESOLVED) {
@@ -104,36 +96,46 @@ public class IncidentService {
         incidentEventRepository.save(event);
 
         var savedIncident = incidentRepository.save(incident);
-
         return incidentMapper.toIncidentResponse(savedIncident);
     }
 
-@Transactional
     public IncidentResponse assignIncident(@Valid AssignIncident assignIncident, UUID uuid) {
-        var incident = incidentRepository.findById(uuid).orElseThrow(()-> new NoSuchElementException("Incident not found"));
-        var user = userRepository.findById(assignIncident.getUserId()).orElseThrow(()-> new NoSuchElementException("User not found"));
-        if(!user.getTeam().getId().equals(incident.getService().getTeam().getId())){
+        var incident = incidentRepository.findByIdForUpdate(uuid)
+                .orElseThrow(() -> new NoSuchElementException("Incident not found"));
+        var user = userRepository.findById(assignIncident.getUserId())
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
+
+        if (!user.getTeam().getId().equals(incident.getService().getTeam().getId())) {
             throw new ConflictException("Team conflict");
         }
+
         incident.setAssignedUser(user);
         incident.setNextEscalationAt(null);
-        var savedIncient = incidentRepository.save(incident);
-        var incidentEvent = new IncidentEvent(savedIncient, IncidentEventType.ASSIGNED, "Incident assigned to "+user.getFirstName()+" "+user.getLastName());
-        savedIncient.addEvent(incidentEvent);
+
+        var savedIncident = incidentRepository.save(incident);
+        var incidentEvent = new IncidentEvent(
+                savedIncident,
+                IncidentEventType.ASSIGNED,
+                "Incident assigned to " + user.getFirstName() + " " + user.getLastName()
+        );
+
+        savedIncident.addEvent(incidentEvent);
         incidentEventRepository.save(incidentEvent);
-        return incidentMapper.toIncidentResponse(savedIncient);
+        return incidentMapper.toIncidentResponse(savedIncident);
     }
 
     public List<IncidentResponse> getIncidentsByUser(UUID userId) {
-        userRepository.findById(userId).orElseThrow(()-> new NoSuchElementException("User not found"));
+        userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
         var listOfIncidentsByUser = incidentRepository.findIncidentsByAssignedUser_Id(userId);
         return incidentMapper.toIncidentResponseList(listOfIncidentsByUser);
     }
 
     public List<IncidentResponse> getActiveIncidentsByUser(UUID userId) {
-        userRepository.findById(userId).orElseThrow(()-> new NoSuchElementException("User not found"));
-        var list = List.of(IncidentStatus.OPEN, IncidentStatus.ACKNOWLEDGED);
-        var listOfActiveIncidentsByUser = incidentRepository.findActiveIncidentsByUser_Id(userId, list);
+        userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
+        var statuses = List.of(IncidentStatus.OPEN, IncidentStatus.ACKNOWLEDGED);
+        var listOfActiveIncidentsByUser = incidentRepository.findActiveIncidentsByUser_Id(userId, statuses);
         return incidentMapper.toIncidentResponseList(listOfActiveIncidentsByUser);
     }
 }
