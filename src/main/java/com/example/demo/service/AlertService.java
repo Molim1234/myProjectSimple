@@ -9,10 +9,10 @@ import com.example.demo.repository.IncidentEventRepository;
 import com.example.demo.repository.IncidentRepository;
 import com.example.demo.repository.ServiceRepository;
 import jakarta.transaction.Transactional;
-
-import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -32,10 +32,8 @@ public class AlertService {
         this.incidentEventRepository = incidentEventRepository;
     }
 
-
     @Transactional
     public AlertResponse addAlert(CreateAlert createAlert) {
-
         var alert = alertMapper.toAlert(createAlert);
 
         var service = serviceRepository.findByIdForUpdate(createAlert.getServiceId())
@@ -43,14 +41,14 @@ public class AlertService {
 
         alert.setService(service);
 
-        var optionalIncident = incidentRepository.findIncidentByServiceAndError(
-                createAlert.getServiceId(),
-                createAlert.getErrorCode()
+        var optionalIncident = incidentRepository.findActiveIncidentByServiceAndErrorForUpdate(
+                service.getId(),
+                createAlert.getErrorCode(),
+                List.of(IncidentStatus.OPEN, IncidentStatus.ACKNOWLEDGED)
         );
 
         Incident incident;
         if (optionalIncident.isEmpty()) {
-
             incident = new Incident();
             incident.setErrorCode(alert.getErrorCode());
             incident.setService(service);
@@ -86,7 +84,6 @@ public class AlertService {
 
             incidentRepository.save(incident);
 
-
             IncidentEvent createdEvent = new IncidentEvent(
                     incident,
                     IncidentEventType.CREATED,
@@ -102,7 +99,6 @@ public class AlertService {
             );
             incident.addEvent(assignedEvent);
             incidentEventRepository.save(assignedEvent);
-
         } else {
             incident = optionalIncident.get();
 
@@ -120,5 +116,4 @@ public class AlertService {
 
         return alertMapper.toAlertResponse(savedAlert);
     }
-
 }
