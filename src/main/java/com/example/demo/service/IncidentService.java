@@ -47,6 +47,7 @@ public class IncidentService {
     }
 
     public IncidentResponse setAcknowledge(UUID uuid) {
+
         var incident = incidentRepository.findByIdForUpdate(uuid)
                 .orElseThrow(() -> new NoSuchElementException("Incident not found"));
 
@@ -75,6 +76,7 @@ public class IncidentService {
     }
 
     public IncidentResponse setResolved(UUID uuid) {
+
         var incident = incidentRepository.findByIdForUpdate(uuid)
                 .orElseThrow(() -> new NoSuchElementException("Incident not found"));
 
@@ -100,12 +102,11 @@ public class IncidentService {
     }
 
     public IncidentResponse assignIncident(@Valid AssignIncident assignIncident, UUID uuid) {
-        var incident = incidentRepository.findByIdForUpdate(uuid)
-                .orElseThrow(() -> new NoSuchElementException("Incident not found"));
-        var user = userRepository.findById(assignIncident.getUserId())
-                .orElseThrow(() -> new NoSuchElementException("User not found"));
+        
+        var incident = incidentRepository.findByIdForUpdate(uuid).orElseThrow(()-> new NoSuchElementException("Incident not found"));
+        var user = userRepository.findById(assignIncident.getUserId()).orElseThrow(()-> new NoSuchElementException("User not found"));
+        if(!user.getTeam().getId().equals(incident.getService().getTeam().getId())){
 
-        if (!user.getTeam().getId().equals(incident.getService().getTeam().getId())) {
             throw new ConflictException("Team conflict");
         }
 

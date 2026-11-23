@@ -66,4 +66,21 @@ public interface IncidentRepository extends JpaRepository<Incident, UUID> {
             @Param("serviceId") UUID serviceId,
             @Param("statuses") List<IncidentStatus> statuses
     );
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select i from Incident i where i.id = :id")
+    Optional<Incident> findByIdForUpdate(@Param("id") UUID id);
+
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+       select i from Incident i
+       where i.status = :status
+       and i.nextEscalationAt is not null
+       and i.nextEscalationAt <= :now
+       """)
+    List<Incident> findOverdueIncidentsForEscalationForUpdate(
+            @Param("status") IncidentStatus status,
+            @Param("now") LocalDateTime now
+    );
 }
