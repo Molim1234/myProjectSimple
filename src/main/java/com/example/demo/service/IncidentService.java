@@ -63,6 +63,7 @@ public class IncidentService {
         }
 
         incident.setStatus(IncidentStatus.ACKNOWLEDGED);
+        incident.setNextEscalationAt(null);
 
 
         IncidentEvent event = new IncidentEvent(
@@ -91,6 +92,7 @@ public class IncidentService {
 
         incident.setStatus(IncidentStatus.RESOLVED);
         incident.setResolvedAt(LocalDateTime.now());
+        incident.setNextEscalationAt(null);
 
         IncidentEvent event = new IncidentEvent(
                 incident,
@@ -114,6 +116,7 @@ public class IncidentService {
             throw new ConflictException("Team conflict");
         }
         incident.setAssignedUser(user);
+        incident.setNextEscalationAt(null);
         var savedIncient = incidentRepository.save(incident);
         var incidentEvent = new IncidentEvent(savedIncient, IncidentEventType.ASSIGNED, "Incident assigned to "+user.getFirstName()+" "+user.getLastName());
         savedIncient.addEvent(incidentEvent);
