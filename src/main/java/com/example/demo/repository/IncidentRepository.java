@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -20,6 +21,12 @@ public interface IncidentRepository extends JpaRepository<Incident, UUID> {
 
     @Query("select i from Incident i where i.assignedUser.id = :userId and i.status in :statuses")
     List<Incident> findActiveIncidentsByUser_Id(@Param("userId") UUID userId, @Param("statuses")List<IncidentStatus> list);
+
+    @Query("select i from Incident i where i.status = :status and i.nextEscalationAt is not null and i.nextEscalationAt <= :now")
+    List<Incident> findOverdueIncidentsForEscalation(
+            @Param("status") IncidentStatus status,
+            @Param("now") LocalDateTime now
+    );
 
     List<Incident> findIncidentsByStatus(IncidentStatus status);
 }
