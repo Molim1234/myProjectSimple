@@ -19,6 +19,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import java.nio.charset.StandardCharsets;
@@ -49,7 +50,7 @@ public class AuthService {
         this.bootstrapSecret = bootstrapSecret;
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public AuthResponse bootstrap(BootstrapRequest request) {
         if (bootstrapSecret == null || bootstrapSecret.isBlank()
                 || !MessageDigest.isEqual(bootstrapSecret.getBytes(StandardCharsets.UTF_8),
@@ -94,7 +95,6 @@ public class AuthService {
         RefreshToken stored = refreshTokenRepository.findByTokenHashAndRevokedFalse(hash)
                 .orElseThrow(() -> new BadCredentialsException("Invalid refresh token"));
         if (!stored.getExpiresAt().isAfter(Instant.now())) {
-            stored.setRevoked(true);
             throw new BadCredentialsException("Refresh token has expired");
         }
         stored.setRevoked(true);
