@@ -94,21 +94,17 @@ public class AuthService {
         String hash = jwtService.hashToken(rawRefreshToken);
         RefreshToken stored = refreshTokenRepository.findByTokenHashAndRevokedFalse(hash)
                 .orElseThrow(() -> new BadCredentialsException("Invalid refresh token"));
-        if (!stored.getExpiresAt().isAfter(Instant.now())) {
-            throw new BadCredentialsException("Refresh token has expired");
+        Instant now = Instant.now();
+        if (!stored.getExpiresAt().isAfter(now)
+                || refreshTokenRepository.revokeIfActive(stored.getId(), now) != 1) {
+            throw new BadCredentialsException("Refresh token is invalid, expired, or already used");
         }
-        stored.setRevoked(true);
-        refreshTokenRepository.save(stored);
         return jwtService.createTokenPair(stored.getUser());
     }
 
     @Transactional
     public void logout(String rawRefreshToken) {
-        refreshTokenRepository.findByTokenHashAndRevokedFalse(jwtService.hashToken(rawRefreshToken))
-                .ifPresent(token -> {
-                    token.setRevoked(true);
-                    refreshTokenRepository.save(token);
-                });
+        refreshTokenRepository.revokeByTokenHash(jwtService.hashToken(rawRefreshToken));
     }
 
     private String normalizeEmail(String email) {
