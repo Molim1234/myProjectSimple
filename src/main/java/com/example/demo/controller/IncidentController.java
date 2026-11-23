@@ -6,7 +6,6 @@ import com.example.demo.dto.IncidentResponse;
 import com.example.demo.service.IncidentEventService;
 import com.example.demo.service.IncidentService;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;

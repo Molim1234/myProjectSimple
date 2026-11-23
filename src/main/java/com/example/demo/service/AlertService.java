@@ -38,7 +38,7 @@ public class AlertService {
 
         var alert = alertMapper.toAlert(createAlert);
 
-        var service = serviceRepository.findById(createAlert.getServiceId())
+        var service = serviceRepository.findByIdForUpdate(createAlert.getServiceId())
                 .orElseThrow(() -> new NoSuchElementException("Service not found"));
 
         alert.setService(service);
