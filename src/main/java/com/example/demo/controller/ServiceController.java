@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.CreateService;
+import com.example.demo.dto.ServiceHealthResponse;
 import com.example.demo.dto.UpdateService;
 import com.example.demo.entity.Services;
 import com.example.demo.service.ServiceService;
@@ -44,6 +45,11 @@ public class ServiceController {
     @DeleteMapping("/{uuid}")
     public Services deleteService(@PathVariable UUID uuid){
         return serviceService.deleteService(uuid);
+    }
+
+    @GetMapping
+    public List<ServiceHealthResponse> getServicesHealth(){
+        return serviceService.getServicesHealth();
     }
 }
 

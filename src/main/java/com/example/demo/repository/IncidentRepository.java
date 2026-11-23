@@ -35,4 +35,6 @@ public interface IncidentRepository extends JpaRepository<Incident, UUID> {
  @Query(value = "select * from incidents i order by created_at desc limit 10",nativeQuery = true)
  List<Incident> returnLast10Incidents();
 
+ @Query("select count(*) from Incident i where i.status in :statuses and i.service.id = :serviceId")
+ long numberOfOpenAndAcknowledgedByServiceId(@Param("serviceId") UUID uuid,@Param("statuses") List<IncidentStatus> list);
 }
