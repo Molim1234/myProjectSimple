@@ -23,7 +23,7 @@ public class EscalationService {
     public void checkIncidentsForEscalation() {
         LocalDateTime now = LocalDateTime.now();
 
-        var incidents = incidentRepository.findOverdueIncidentsForEscalation(
+        var incidents = incidentRepository.findOverdueIncidentsForEscalationForUpdate(
                 IncidentStatus.OPEN,
                 now
         );
@@ -44,7 +44,6 @@ public class EscalationService {
                     .orElse(null);
 
             if (nextLevel == null) {
-
                 incident.setNextEscalationAt(null);
                 incidentRepository.save(incident);
                 continue;
@@ -58,7 +57,6 @@ public class EscalationService {
                         now.plusMinutes(nextLevel.getTimeoutMinutes())
                 );
             } else {
-
                 incident.setNextEscalationAt(null);
             }
 
