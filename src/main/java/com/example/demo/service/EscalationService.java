@@ -44,7 +44,7 @@ public class EscalationService {
                     .orElse(null);
 
             if (nextLevel == null) {
-                // No further level is configured; stop checking this incident.
+
                 incident.setNextEscalationAt(null);
                 incidentRepository.save(incident);
                 continue;
@@ -58,7 +58,7 @@ public class EscalationService {
                         now.plusMinutes(nextLevel.getTimeoutMinutes())
                 );
             } else {
-                // The final escalation level has been reached.
+
                 incident.setNextEscalationAt(null);
             }
 

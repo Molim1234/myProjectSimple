@@ -29,4 +29,10 @@ public interface IncidentRepository extends JpaRepository<Incident, UUID> {
     );
 
     List<Incident> findIncidentsByStatus(IncidentStatus status);
+
+ long countAllByStatus(IncidentStatus status);
+
+ @Query(value = "select * from incidents i order by created_at limit 10",nativeQuery = true)
+ List<Incident> returnLast10Incidents();
+
 }
