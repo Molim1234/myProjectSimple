@@ -31,6 +31,10 @@ public class Incident {
 
     private LocalDateTime resolvedAt;
 
+    private Integer currentEscalationLevel;
+
+    private LocalDateTime nextEscalationAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "service_id", nullable = false)
     private Services service;
@@ -118,6 +122,22 @@ public class Incident {
 
     public void setResolvedAt(LocalDateTime resolvedAt) {
         this.resolvedAt = resolvedAt;
+    }
+
+    public Integer getCurrentEscalationLevel() {
+        return currentEscalationLevel;
+    }
+
+    public void setCurrentEscalationLevel(Integer currentEscalationLevel) {
+        this.currentEscalationLevel = currentEscalationLevel;
+    }
+
+    public LocalDateTime getNextEscalationAt() {
+        return nextEscalationAt;
+    }
+
+    public void setNextEscalationAt(LocalDateTime nextEscalationAt) {
+        this.nextEscalationAt = nextEscalationAt;
     }
 
     public Services getService() {
