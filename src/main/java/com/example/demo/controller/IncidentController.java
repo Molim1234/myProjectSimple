@@ -6,15 +6,15 @@ import com.example.demo.dto.IncidentResponse;
 import com.example.demo.service.IncidentEventService;
 import com.example.demo.service.IncidentService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/incidents")
 public class IncidentController {
-
     private final IncidentService incidentService;
     private final IncidentEventService incidentEventService;
 
@@ -24,44 +24,53 @@ public class IncidentController {
     }
 
     @GetMapping
-    public List<IncidentResponse> getAllIncidents(){
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<IncidentResponse> getAllIncidents() {
         return incidentService.getAllIncidents();
     }
 
     @GetMapping("/{uuid}")
-    public IncidentResponse getIncident(@PathVariable UUID uuid){
+    @PreAuthorize("@incidentAccess.canAccessIncident(authentication, #p0)")
+    public IncidentResponse getIncident(@PathVariable UUID uuid) {
         return incidentService.getIncident(uuid);
     }
 
     @GetMapping("/{uuid}/events")
-    public List<IncidentEventResponse> getIncidentEvents(@PathVariable UUID uuid){
-       return incidentEventService.getIncidentEvents(uuid);
+    @PreAuthorize("@incidentAccess.canAccessIncident(authentication, #p0)")
+    public List<IncidentEventResponse> getIncidentEvents(@PathVariable UUID uuid) {
+        return incidentEventService.getIncidentEvents(uuid);
     }
 
     @PatchMapping("/{uuid}/acknowledge")
-    public IncidentResponse setAcknowledge(@PathVariable UUID uuid){
+    @PreAuthorize("@incidentAccess.canAccessIncident(authentication, #p0)")
+    public IncidentResponse setAcknowledge(@PathVariable UUID uuid) {
         return incidentService.setAcknowledge(uuid);
     }
 
     @PatchMapping("/{uuid}/resolve")
-    public IncidentResponse setResolved(@PathVariable UUID uuid){
+    @PreAuthorize("@incidentAccess.canAccessIncident(authentication, #p0)")
+    public IncidentResponse setResolved(@PathVariable UUID uuid) {
         return incidentService.setResolved(uuid);
     }
 
     @PatchMapping("/{uuid}/assign")
-    public IncidentResponse assignIncident(@RequestBody @Valid AssignIncident assignIncident, @PathVariable UUID uuid){
-       return incidentService.assignIncident(assignIncident, uuid);
+    @PreAuthorize("hasRole('ADMIN')")
+    public IncidentResponse assignIncident(
+            @RequestBody @Valid AssignIncident assignIncident,
+            @PathVariable UUID uuid
+    ) {
+        return incidentService.assignIncident(assignIncident, uuid);
     }
 
     @GetMapping("/assigned/{userId}")
-    public List<IncidentResponse> getIncidentsByUser(@PathVariable UUID userId){
+    @PreAuthorize("@incidentAccess.canAccessUserIncidents(authentication, #p0)")
+    public List<IncidentResponse> getIncidentsByUser(@PathVariable UUID userId) {
         return incidentService.getIncidentsByUser(userId);
     }
 
     @GetMapping("/assigned/{userId}/active")
-    public List<IncidentResponse> getActiveIncidentsByUser(@PathVariable UUID userId){
+    @PreAuthorize("@incidentAccess.canAccessUserIncidents(authentication, #p0)")
+    public List<IncidentResponse> getActiveIncidentsByUser(@PathVariable UUID userId) {
         return incidentService.getActiveIncidentsByUser(userId);
     }
-
-
 }

@@ -99,7 +99,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/bootstrap", "/api/auth/login",
                                 "/api/auth/refresh", "/api/auth/logout").permitAll()
                         .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
-                        .requestMatchers("/api/users/**", "/api/teams/**", "/api/escalation-policies/**").hasRole("ADMIN")
+                        .requestMatchers("/api/users/**", "/api/teams/**", "/api/escalation-policies/**",
+                                "/api/dashboard/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/services/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/services/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/services/**").hasRole("ADMIN")
